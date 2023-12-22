@@ -10,9 +10,9 @@ class Interest(models.Model):
 class Student(models.Model):
     
     GENDER_CHOICES = (
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('O', 'Other'),
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
     )
 
     DEPARTMENT_CHOICES = (
@@ -326,7 +326,7 @@ class Student(models.Model):
     password = models.CharField(max_length=50)
     roll_number = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=7, choices=GENDER_CHOICES)
     date_of_birth = models.DateField()
     interest = models.ForeignKey(Interest, on_delete=models.CASCADE)
     city = models.CharField(max_length=50,choices=CITY_CHOICES)

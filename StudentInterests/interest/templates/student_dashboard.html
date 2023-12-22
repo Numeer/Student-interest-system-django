@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 <div class="ml-3 mt-3">
     {% block title %}Student Form{% endblock %}
 </div>
@@ -10,6 +11,7 @@
     <a href="{% url 'student-create' %}">Add Student</a>
     <br> <br>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .grid-container {
         display: grid;
@@ -17,6 +19,28 @@
         grid-gap: 10px;
     }
 
+    .box-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+    }
+
+    .box {
+        width: 200px;
+        height: 100px;
+        border: 2px solid #007bff;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        background-color: #f0f0f0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .count {
+        font-size: 46px;
+        font-weight: bold;
+    }
 </style>
 {% endblock %}
 {% block content_title %}Dashboard{% endblock %}
@@ -41,10 +65,13 @@
         {% endfor %}
     </div>
 
-    <div>
-        <h2>Distinct Interests Count</h2>
-        <p>{{ distinct_interests_count }}</p>
+    <div class="box-container">
+        <div class="box">
+            <h5>Distinct Interests</h5>
+            <div class="count">{{ distinct_interests_count }}</div>
+        </div>
     </div>
+
     <div>
         <h2>Student Statistics</h2>
         <table border="1">
@@ -74,5 +101,157 @@
             </tr>
         </table>
     </div>
+
+    <div>
+        <canvas id="provincialChart" width="200" height="200"></canvas>
+        <h2>Provincial Distribution</h2>
+    </div>
+
+    <div>
+        <canvas id="submissionChart" width="200" height="200"></canvas>
+        <h2>Submission Chart</h2>
+    </div>
+
+    <div>
+        <canvas id="ageChart" width="200" height="200"></canvas>
+        <h2>Age Distribution</h2>
+    </div>
+
+    <div>
+        <canvas id="departmentChart" width="200" height="200"></canvas>
+        <h2>Department Distribution</h2>
+    </div>
+
+    <div>
+        <canvas id="degreeChart" width="200" height="200"></canvas>
+        <h2>Degreee Distribution</h2>
+    </div>
+
+    <div>
+        <canvas id="genderChart" width="200" height="200"></canvas>
+        <h2>Genders Distribution</h2>
+    </div>
 </div>
+
+<script>
+    var provinceLabels = JSON.parse("{{ province_labels|escapejs }}");
+    var provinceCounts = JSON.parse("{{ province_counts|escapejs }}");
+    var submissionDates = JSON.parse("{{ submission_dates|escapejs }}");
+    var submissionCounts = JSON.parse("{{ submission_counts|escapejs }}");
+    var ageGroups = JSON.parse("{{ age_groups|escapejs }}");
+    var ageCounts = JSON.parse("{{ age_counts|escapejs }}");
+    var departmentLabels = JSON.parse('{{ department_labels|escapejs }}');
+    var departmentCounts = JSON.parse('{{ department_counts|escapejs }}');
+    var degreeLabels = JSON.parse('{{ degree_labels|escapejs }}');
+    var degreeCounts = JSON.parse('{{ degree_counts|escapejs }}');
+    var genderLabels = JSON.parse('{{ gender_labels|escapejs }}');
+    var genderCounts = JSON.parse('{{ gender_counts|escapejs }}');
+
+    var submissionCtx = document.getElementById('submissionChart').getContext('2d');
+    var submissionChart = new Chart(submissionCtx, {
+        type: 'line',
+        data: {
+            labels: submissionDates,
+            datasets: [{
+                label: 'Students Created',
+                data: submissionCounts,
+                borderColor: 'blue',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                },
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
+                    }
+                }
+            }
+        }
+    });
+
+    var ageCtx = document.getElementById('ageChart').getContext('2d');
+    var ageChart = new Chart(ageCtx, {
+        type: 'bar',
+        data: {
+            labels: ageGroups,
+            datasets: [{
+                label: 'Number of Students',
+                data: ageCounts,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'x',
+            scales: {
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
+                    }
+                },
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Age Groups'
+                    }
+                }
+            }
+        }
+    });
+
+    function generateRandomColors(count) {
+        var colors = [];
+        for (var i = 0; i < count; i++) {
+            var randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+            colors.push(randomColor);
+        }
+        return colors;
+    }
+
+    function createPieChart(ctx, labels, data, chartTitle) {
+        var colors = generateRandomColors(data.length);
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: chartTitle,
+                    fontSize: 16,
+                    fontColor: '#333',
+                },
+            }
+        });
+    }
+
+    var departmentCtx = document.getElementById('departmentChart').getContext('2d');
+    var degreeCtx = document.getElementById('degreeChart').getContext('2d');
+    var genderCtx = document.getElementById('genderChart').getContext('2d');
+    var provincialCtx = document.getElementById('provincialChart').getContext('2d');
+
+    createPieChart(provincialCtx, provinceLabels, provinceCounts, 'Provincial Distribution');
+    createPieChart(departmentCtx, departmentLabels, departmentCounts, 'Department Distribution');
+    createPieChart(degreeCtx, degreeLabels, degreeCounts, 'Degree Distribution');
+    createPieChart(genderCtx, genderLabels, genderCounts, 'Gender Distribution');
+</script>
 {% endblock %}
