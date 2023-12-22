@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Student Details{% endblock %}</title>
+</head>
+<body>
+    <h1>{% block heading %}Student Details{% endblock %}</h1>
+
+    <h2>Student Information:</h2>
+    <p><strong>Name:</strong> {{ student.name }}</p>
+    <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+    <p><strong>Email:</strong> {{ student.email }}</p>
+    <p><strong>Gender:</strong> {{ student.get_gender_display }}</p>
+    <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
+    <p><strong>Interest:</strong> {{ student.interest }}</p>
+    <p><strong>City:</strong> {{ student.city }}</p>
+    <p><strong>Department:</strong> {{ student.department }}</p>
+    <p><strong>Degree Title:</strong> {{ student.degree_title }}</p>
+    <p><strong>Subject:</strong> {{ student.subject }}</p>
+    <p><strong>Start Date:</strong> {{ student.start_date }}</p>
+    <p><strong>End Date:</strong> {{ student.end_date }}</p>
+
+    
+</body>
+</html>
