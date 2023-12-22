@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+<div class="ml-3 mt-3">
+    {% block title %}Student Form{% endblock %}
+</div>
+{% block extra_head %}
+
+<div class="ml-3 mt-3">
+    <a href="{% url 'student-list' %}">Student List</a>
+    <b> | </b>
+    <a href="{% url 'student-create' %}">Add Student</a>
+    <br> <br>
+</div>
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 10px;
+    }
+
+</style>
+{% endblock %}
+{% block content_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid-container">
+    <div>
+        <h2>Top 5 Interests</h2>
+        {% for interest in top_interests %}
+        <div style="background-color: green; color: white; padding: 10px; margin: 5px; display: inline-block;">
+            {{ interest.name }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div>
+        <h2>Bottom 5 Interests</h2>
+        {% for interest in bottom_interests %}
+        <div style="background-color: red; color: white; padding: 10px; margin: 5px; display: inline-block;">
+            {{ interest.name }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div>
+        <h2>Distinct Interests Count</h2>
+        <p>{{ distinct_interests_count }}</p>
+    </div>
+    <div>
+        <h2>Student Statistics</h2>
+        <table border="1">
+            <tr>
+                <th>Student Status</th>
+                <th>Count</th>
+            </tr>
+            <tr>
+                <td>Total Students</td>
+                <td>{{ total_students }}</td>
+            </tr>
+            <tr>
+                <td>Studying</td>
+                <td>{{ studying_students_count }}</td>
+            </tr>
+            <tr>
+                <td>Recently Enrolled </td>
+                <td>{{ recently_enrolled_count }}</td>
+            </tr>
+            <tr>
+                <td>About to Graduate</td>
+                <td>{{ about_to_graduate_count }}</td>
+            </tr>
+            <tr>
+                <td>Graduated</td>
+                <td>{{ graduated_students_count }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

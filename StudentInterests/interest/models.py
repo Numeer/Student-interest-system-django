@@ -6,7 +6,6 @@ class Interest(models.Model):
     
     def __str__(self) -> str:
         return self.name
-        # return super().__str__()
     
 class Student(models.Model):
     
