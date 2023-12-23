@@ -15,7 +15,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-        
     .grid-container {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -27,6 +26,7 @@
         justify-content: center;
         align-items: center;
         height: 200px;
+        text-align: center;
     }
 
     .box {
@@ -40,10 +40,39 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
     .count {
         font-size: 46px;
         font-weight: bold;
     }
+    .row-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .box-containerr {
+        flex: 1 1 calc(33.33% - 1px);
+    }
+
+    .card-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .card {
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
 </style>
 
 {% endblock %}
@@ -135,24 +164,37 @@
         <canvas id="genderChart" width="200" height="200"></canvas>
         <h2>Genders Distribution</h2>
     </div>
-     
+
     <div>
-        <canvas id="dailyActivityChart"width="200" height="200"></canvas>
+        <canvas id="dailyActivityChart" width="200" height="200"></canvas>
         <h2>Last 30 days Activity</h2>
     </div>
 
     <div>
-        <canvas id="activityCountsChart"width="200" height="200"></canvas>
+        <canvas id="activityCountsChart" width="200" height="200"></canvas>
         <h2>Last 24 hours Activity</h2>
     </div>
+    <div class="row-container">
+            <div class="box-containerr">
+                <div id="mostActiveHours" class="card-container">
+                </div>
+            </div>
 
+            <div class="box-containerr">
+                <div id="leastActiveHours" class="card-container">
+                </div>
+            </div>
+
+            <div class="box-containerr">
+                <div id="deadHours" class="card-container">
+                </div>
+            </div>
+    </div>
 </div>
 
 <script>
     var provinceLabels = JSON.parse("{{ province_labels|escapejs }}");
     var provinceCounts = JSON.parse("{{ province_counts|escapejs }}");
-    var submissionDates = JSON.parse("{{ submission_dates|escapejs }}");
-    var submissionCounts = JSON.parse("{{ submission_counts|escapejs }}");
     var ageGroups = JSON.parse("{{ age_groups|escapejs }}");
     var ageCounts = JSON.parse("{{ age_counts|escapejs }}");
     var departmentLabels = JSON.parse('{{ department_labels|escapejs }}');
@@ -161,41 +203,28 @@
     var degreeCounts = JSON.parse('{{ degree_counts|escapejs }}');
     var genderLabels = JSON.parse('{{ gender_labels|escapejs }}');
     var genderCounts = JSON.parse('{{ gender_counts|escapejs }}');
-    
+    var chartData = JSON.parse('{{ chart_data | safe }}');
 
-    var submissionCtx = document.getElementById('submissionChart').getContext('2d');
-    var submissionChart = new Chart(submissionCtx, {
+    var dates = chartData.map(item => item.date);
+    var studentCounts = chartData.map(item => item.student_count);
+
+    var ctx = document.getElementById('submissionChart').getContext('2d');
+    var submissionChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: submissionDates,
+            labels: dates,
             datasets: [{
-                label: 'Students Created',
-                data: submissionCounts,
+                label: 'Number of Students Created Daily',
+                data: studentCounts,
                 borderColor: 'blue',
+                backgroundColor: 'rgba(0, 0, 255, 0.1)',
                 borderWidth: 1
             }]
         },
         options: {
-            scales: {
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Date'
-                    }
-                },
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Students'
-                    }
-                }
-            }
         }
     });
 
-    
 
     var ageCtx = document.getElementById('ageChart').getContext('2d');
     var ageChart = new Chart(ageCtx, {
@@ -263,40 +292,40 @@
     }
 
     function createLineChart(canvasId, data) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(entry => entry.day),
-                    datasets: [{
-                        label: 'Activity Count',
-                        data: data.map(entry => entry.count),
-                        borderColor: 'blue',
-                        borderWidth: 1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Time'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Number of Actions'
-                            }
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(entry => entry.day),
+                datasets: [{
+                    label: 'Activity Count',
+                    data: data.map(entry => entry.count),
+                    borderColor: 'blue',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of Actions'
                         }
                     }
                 }
-            });
-        }
-    
+            }
+        });
+    }
+
     var departmentCtx = document.getElementById('departmentChart').getContext('2d');
     var degreeCtx = document.getElementById('degreeChart').getContext('2d');
     var genderCtx = document.getElementById('genderChart').getContext('2d');
@@ -306,63 +335,104 @@
     createPieChart(departmentCtx, departmentLabels, departmentCounts, 'Department Distribution');
     createPieChart(degreeCtx, degreeLabels, degreeCounts, 'Degree Distribution');
     createPieChart(genderCtx, genderLabels, genderCounts, 'Gender Distribution');
-    
-    document.addEventListener("DOMContentLoaded", function() {
-      var thirtyDaysAgo = '{{ thirty_days_ago }}';
-      var twentyFourHoursAgo = '{{ twenty_four_hours_ago }}';
-      var dailyActivity30Days = JSON.parse('{{ daily_activity_30_days | safe }}');
-      var activityCounts24Hours = JSON.parse('{{ activity_counts_24_hours | safe }}');
 
-      thirtyDaysAgo = new Date(thirtyDaysAgo);
-      twentyFourHoursAgo = new Date(twentyFourHoursAgo);
+    document.addEventListener("DOMContentLoaded", function () {
+        var thirtyDaysAgo = '{{ thirty_days_ago }}';
+        var twentyFourHoursAgo = '{{ twenty_four_hours_ago }}';
+        var dailyActivity30Days = JSON.parse('{{ daily_activity_30_days | safe }}');
+        var activityCounts24Hours = JSON.parse('{{ activity_counts_24_hours | safe }}');
 
-      var dailyLabels = dailyActivity30Days.map(function(item) {
-        return item.day;
-      });
+        thirtyDaysAgo = new Date(thirtyDaysAgo);
+        twentyFourHoursAgo = new Date(twentyFourHoursAgo);
 
-      var dailyCounts = dailyActivity30Days.map(function(item) {
-        return item.count;
-      });
+        var dailyLabels = dailyActivity30Days.map(function (item) {
+            return item.day;
+        });
 
-      var quarterHourLabels = activityCounts24Hours.map(function(item) {
-        return item.quarter_hour;
-      });
+        var dailyCounts = dailyActivity30Days.map(function (item) {
+            return item.count;
+        });
 
-      var activityCounts = activityCounts24Hours.map(function(item) {
-        return item.count;
-      });
+        var quarterHourLabels = activityCounts24Hours.map(function (item) {
+            return item.quarter_hour;
+        });
 
-      var ctxDailyActivity = document.getElementById('dailyActivityChart').getContext('2d');
-      var dailyActivityChart = new Chart(ctxDailyActivity, {
-        type: 'line',
-        data: {
-          labels: dailyLabels,
-          datasets: [{
-            label: 'Daily Activity in Last 30 Days',
-            data: dailyCounts,
-            borderColor: 'blue',
-            fill: false
-          }]
-        },
-        options: {
+        var activityCounts = activityCounts24Hours.map(function (item) {
+            return item.count;
+        });
+
+        var ctxDailyActivity = document.getElementById('dailyActivityChart').getContext('2d');
+        var dailyActivityChart = new Chart(ctxDailyActivity, {
+            type: 'line',
+            data: {
+                labels: dailyLabels,
+                datasets: [{
+                    label: 'Daily Activity in Last 30 Days',
+                    data: dailyCounts,
+                    borderColor: 'blue',
+                    fill: false
+                }]
+            },
+            options: {
+            }
+        });
+
+        var ctxActivityCounts = document.getElementById('activityCountsChart').getContext('2d');
+        var activityCountsChart = new Chart(ctxActivityCounts, {
+            type: 'line',
+            data: {
+                labels: quarterHourLabels,
+                datasets: [{
+                    label: 'Activity Counts in Last 24 Hours',
+                    data: activityCounts,
+                    borderColor: 'red',
+                    fill: false
+                }]
+            },
+            options: {
+            }
+        });
+    });
+
+    var mostActiveHours = JSON.parse('{{ most_active_hours | safe }}');
+    var leastActiveHours = JSON.parse('{{ least_active_hours | safe }}');
+    var deadHours = JSON.parse('{{ dead_hours | safe }}');
+
+    function populateCards(containerId, title, hoursData) {
+        var container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        var card = document.createElement('div');
+        card.classList.add('card');
+
+        var cardBody = document.createElement('div');
+        cardBody.classList.add('card-body');
+
+        var cardTitle = document.createElement('h5');
+        cardTitle.classList.add('card-title');
+        cardTitle.textContent = title;
+
+        var cardContent = document.createElement('div');
+        cardContent.classList.add('card-text');
+
+        for (var i = 0; i < hoursData.length; i++) {
+            var hour = document.createElement('p');
+            var suffix = (hoursData[i] < 12) ? 'AM' : 'PM';
+            var displayHour = (hoursData[i] < 13) ? hoursData[i] : hoursData[i] - 12;
+            hour.textContent = displayHour + ' ' + suffix;
+            cardContent.appendChild(hour);
         }
-      });
 
-      var ctxActivityCounts = document.getElementById('activityCountsChart').getContext('2d');
-      var activityCountsChart = new Chart(ctxActivityCounts, {
-        type: 'line',
-        data: {
-          labels: quarterHourLabels,
-          datasets: [{
-            label: 'Activity Counts in Last 24 Hours',
-            data: activityCounts,
-            borderColor: 'red',
-            fill: false
-          }]
-        },
-        options: {
-        }
-      });
-    });  
+        cardBody.appendChild(cardTitle);
+        cardBody.appendChild(cardContent);
+        card.appendChild(cardBody);
+        container.appendChild(card);
+    }
+
+    populateCards('mostActiveHours', 'Most Active Hours in Last 30 Days', mostActiveHours);
+    populateCards('leastActiveHours', 'Least Active Hours in Last 30 Days', leastActiveHours);
+    populateCards('deadHours', 'Dead Hours in Last 30 Days', deadHours);
+
+
 </script>
 {% endblock %}
