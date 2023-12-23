@@ -2,38 +2,46 @@
 
 {% block title %}Student List{% endblock %}
 {% block extra_head %}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-    <a href="{% url 'student-dashboard' %}">Dashboard</a>
-    <b> | </b>
-    <a href="{% url 'student-create' %}">Add Student</a>
-    <br> <br>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        body {
-            margin: 20px;
-        }
-        .top-section {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 10px;
-            margin-top: 50px;
-        }
-    </style>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<a href="{% url 'student-dashboard' %}">Dashboard</a>
+<b> | </b>
+<a href="{% url 'student-create' %}">Add Student</a>
+<b> | </b>
+<a href="{% url 'logout' %}">Logout</a>
+<br> <br>
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    body {
+        margin: 20px;
+    }
+
+    .top-section {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 10px;
+        margin-top: 50px;
+    }
+</style>
 {% endblock %}
 {% block content_title %}Students{% endblock %}
 {% block content %}
@@ -91,19 +99,19 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var table = $('#studentTable').DataTable({
             // DataTable configurations
             "paging": true,
             "lengthChange": false,
-            "searching": false, 
+            "searching": false,
             "info": false
         });
 
         function updatePageInfo() {
             var pageInfo = table.page.info();
             $('#pageInfo').text('Page ' + (pageInfo.page + 1) + ' of ' + pageInfo.pages);
-            
+
             $('#firstPageBtn').prop('disabled', pageInfo.page === 0);
             $('#prevPageBtn').prop('disabled', pageInfo.page === 0);
             $('#nextPageBtn').prop('disabled', pageInfo.page === pageInfo.pages - 1);
@@ -114,13 +122,51 @@
 
         $('#studentTable').on('page.dt', function () {
             updatePageInfo();
+            logActivity('Navigated to page ' + (table.page.info().page + 1));
         });
 
-        $('#pageSizeSelect').on('change', function() {
-            table.page.len($(this).val()).draw();
-            table.page('first').draw('page'); 
+        $('#pageSizeSelect').on('change', function () {
+            var selectedPageSize = $(this).val();
+            table.page.len(selectedPageSize).draw();
+            table.page('first').draw('page');
             updatePageInfo();
+            logActivity('Changed page size to ' + selectedPageSize);
         });
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function logActivity(action) {
+            $.ajax({
+                url: '/log-activity/',
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                data: {
+                    action: action
+                },
+                success: function (response) {
+                    // Handle success if needed
+                },
+                error: function (error) {
+                    // Handle error if needed
+                }
+            });
+        }
     });
 </script>
+
 {% endblock %}

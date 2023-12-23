@@ -324,7 +324,7 @@ class Student(models.Model):
     
     name = models.CharField(max_length=100)
     password = models.CharField(max_length=50)
-    roll_number = models.CharField(max_length=50)
+    roll_number = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     gender = models.CharField(max_length=7, choices=GENDER_CHOICES)
     date_of_birth = models.DateField()
@@ -340,12 +340,12 @@ class Student(models.Model):
         return self.name
 
 class ActivityLog(models.Model):
-    user = models.ForeignKey(Student, on_delete=models.CASCADE)
+    user = models.ForeignKey(Student, on_delete=models.CASCADE,to_field='roll_number')
     timestamp = models.DateTimeField(auto_now_add=True)
     activity = models.TextField()
 
     def __str__(self):
-        return f"{self.user.name} - {self.timestamp}"
+        return f"{self.user.name} - {self.activity}"
     
 
 
