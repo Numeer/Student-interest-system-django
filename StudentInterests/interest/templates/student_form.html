@@ -49,6 +49,17 @@
 
 {% block content %}
 <br><br>
+{% if form.errors %}
+  <div class="alert alert-danger">
+    <ul>
+      {% for field in form %}
+        {% if field.errors %}
+          <li>{{ field.label_tag }}: {{ field.errors|striptags }}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
 <div class="container">
     <div class="row">
         <div class="col-md-4">
@@ -92,10 +103,10 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="id_interest">Interest</label>
-                <select id="id_interest_select" name="interest_select">
+                <select id="id_interest" name="interest"> 
                     <option value="">Select Interest</option>
-                    {% for interest in form.interest %}
-                        <option value="{{ interest }}">/option>
+                    {% for interest in form.interest.field.choices %}
+                        <option value="{{ interest.0 }}">{{ interest.1 }}</option>
                     {% endfor %}
                 </select>
                 <input type="text" id="id_interest_input" name="interest_input" placeholder="Type new interest">
@@ -145,11 +156,13 @@
     </div>
 </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#id_interest_input').hide();
-
-        $('#id_interest_select').change(function() {
+        $('#id_interest_input').hide();    
+        $('#id_interest').change(function() {
             if ($(this).val() === "") {
                 $('#id_interest_input').show();
             } else {
@@ -157,8 +170,5 @@
             }
         });
     });
-</script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </script>
 {% endblock %}  

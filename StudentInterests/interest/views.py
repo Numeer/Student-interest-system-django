@@ -75,9 +75,9 @@ def student_detail(request, pk):
     student = get_object_or_404(Student, pk=pk)
     student_id = request.session.get('logged_in_student_id')
     if student_id:
-        student = Student.objects.get(pk=student_id)
-        activity = f"Viewed student {student} details"
-        ActivityLog.objects.create(user=student, timestamp=timezone.now(), activity=activity)
+        students = Student.objects.get(pk=student_id)
+        activity = f"Viewed student details"
+        ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
     return render(request, 'student_detail.html', {'student': student})
 
 
