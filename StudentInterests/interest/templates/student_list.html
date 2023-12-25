@@ -3,6 +3,7 @@
 {% block title %}Student List{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <a href="{% url 'student-dashboard' %}">Dashboard</a>
 <b> | </b>
 <a href="{% url 'student-create' %}">Add Student</a>
@@ -45,6 +46,16 @@
 {% endblock %}
 {% block content_title %}Students{% endblock %}
 {% block content %}
+{% if error_message %}
+<div class="alert alert-danger" role="alert">
+    {{ error_message }}
+</div>
+{% endif %}
+{% if message %}
+<div class="alert alert-success" role="alert">
+    {{ message }}
+</div>
+{% endif %}
 <div class="top-section">
     <div>
         <label for="pageSizeSelect">Page Size:</label>
@@ -98,20 +109,20 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function () {
         var table = $('#studentTable').DataTable({
             // DataTable configurations
             "paging": true,
             "lengthChange": false,
-            "searching": false,
-            "info": false
+            "searching": true,
+            "info": true,
         });
-
+        var pageInfo = table.page.info();
+        $('#pageInfo').text('Page ' + (pageInfo.page + 1) + ' of ' + pageInfo.pages);
         function updatePageInfo() {
-            var pageInfo = table.page.info();
-            $('#pageInfo').text('Page ' + (pageInfo.page + 1) + ' of ' + pageInfo.pages);
-
+           
             $('#firstPageBtn').prop('disabled', pageInfo.page === 0);
             $('#prevPageBtn').prop('disabled', pageInfo.page === 0);
             $('#nextPageBtn').prop('disabled', pageInfo.page === pageInfo.pages - 1);
@@ -159,10 +170,8 @@
                     action: action
                 },
                 success: function (response) {
-                    // Handle success if needed
                 },
                 error: function (error) {
-                    // Handle error if needed
                 }
             });
         }

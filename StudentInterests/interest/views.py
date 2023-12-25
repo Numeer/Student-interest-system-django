@@ -1,13 +1,13 @@
 from datetime import date, timedelta, datetime
 import json
 from django.forms import model_to_dict
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.serializers import serialize
 from django.shortcuts import get_object_or_404, redirect, render
 from interest import models
 from interest.StudentForm import StudentForm
 from django.db.models import Count, F, ExpressionWrapper, IntegerField
-from interest.models import ActivityLog, Interest, Student
+from interest.models import ActivityLog, Interest, Student, Permission
 from django.db.models.functions import ExtractYear
 from django.db.models import F, ExpressionWrapper
 from django.db.models.functions import ExtractYear, ExtractMonth, ExtractHour
@@ -15,14 +15,25 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models.functions import Trunc
 
-
+def check_permission(request, student_id, permission_name):
+    try:
+        student = get_object_or_404(Student, id=student_id)
+        has_permission = student.permissions.filter(name=permission_name).exists()
+        return True if has_permission else False
+    except Student.DoesNotExist:
+        return False
+    
 def student_login(request):
     if request.method == 'POST':
         rollNo = request.POST.get('username')
         password = request.POST.get('pwd')
         student = Student.objects.filter(roll_number=rollNo, password=password).first()
         if student:
+            student_permissions = student.permissions.all().values_list('name', flat=True)
             request.session['logged_in_student_id'] = student.id
+            request.session['student_permissions'] = list(student_permissions)
+            student_permissions = request.session.get('student_permissions', [])
+            print(student_permissions)
             activity = f"Logged in"
             ActivityLog.objects.create(user=student, timestamp=timezone.now(), activity=activity)
             return redirect('student-list')
@@ -53,64 +64,90 @@ def student_list(request):
 
 
 def student_create(request):
-    if request.method == 'POST':
-        form = StudentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            student_id = request.session.get('logged_in_student_id')
+    student_id = request.session.get('logged_in_student_id')
+    if check_permission(request, student_id, 'ADD'):
+        if request.method == 'POST':
+            form = StudentForm(request.POST)
+            if form.is_valid():
+                form.save()
+                student = Student.objects.get(pk=student_id)
+                activity = f"Created student"
+                ActivityLog.objects.create(user=student, timestamp=timezone.now(), activity=activity)
+                students = Student.objects.all()
+                message="Student Created Successfully"
+                return render(request, 'student_list.html', {'students': students, 'message': message})
+        else:
+            form = StudentForm()
             student = Student.objects.get(pk=student_id)
-            activity = f"Created student"
+            activity = f"Viewed student create form"
             ActivityLog.objects.create(user=student, timestamp=timezone.now(), activity=activity)
-            return redirect('student-detail', pk=form.instance.pk)
+        return render(request, 'student_form.html', {'form': form})
     else:
-        form = StudentForm()
-        activity = f"Viewed student create form"
-        student_id = request.session.get('logged_in_student_id')
-        student = Student.objects.get(pk=student_id)
-        ActivityLog.objects.create(user=student, timestamp=timezone.now(), activity=activity)
-    return render(request, 'student_form.html', {'form': form})
+        students = Student.objects.all()
+        error_message = "You don't have permission to ADD the information."
+        return render(request, 'student_list.html', {'students': students, 'error_message': error_message})
 
 
 def student_detail(request, pk):
-    student = get_object_or_404(Student, pk=pk)
     student_id = request.session.get('logged_in_student_id')
-    if student_id:
-        students = Student.objects.get(pk=student_id)
-        activity = f"Viewed student details"
-        ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
-    return render(request, 'student_detail.html', {'student': student})
-
+    if check_permission(request, student_id, 'VIEW'):
+        student = get_object_or_404(Student, pk=pk)
+        student_id = request.session.get('logged_in_student_id')
+        if student_id:
+            students = Student.objects.get(pk=student_id)
+            activity = f"Viewed student details"
+            ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
+        return render(request, 'student_detail.html', {'student': student})
+    else:
+        students = Student.objects.all()
+        error_message = "You don't have permission to View the information."
+        return render(request, 'student_list.html', {'students': students, 'error_message': error_message})
+    
 
 def student_update(request, pk):
-    student = get_object_or_404(Student, pk=pk)
-    if request.method == 'POST':
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            student_id = request.session.get('logged_in_student_id')
-            student = Student.objects.get(pk=student_id)
-            activity = f"Updated student"
-            ActivityLog.objects.create(user=student, timestamp=timezone.now(), activity=activity)
-            form.save()
-            return redirect('student-list')
+    student_id = request.session.get('logged_in_student_id')
+    if check_permission(request, student_id, 'UPDATE'):
+        student = get_object_or_404(Student, pk=pk)
+        if request.method == 'POST':
+            form = StudentForm(request.POST, instance=student)
+            if form.is_valid():
+                activity = f"Updated student"
+                students = Student.objects.get(pk=student_id)
+                ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
+                form.save()
+                students = Student.objects.all()
+                message="Student Updated Successfully"
+                return render(request, 'student_list.html', {'students': students, 'message': message})
+
+        else:
+            activity = f"Viewed student update form"
+            students = Student.objects.get(pk=student_id)
+            ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
+            form = StudentForm(instance=student)
+        return render(request, 'student_update.html', {'form': form})
     else:
-        activity = f"Viewed student update form"
-        student_id = request.session.get('logged_in_student_id')
-        students = Student.objects.get(pk=student_id)        
-        ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
-        form = StudentForm(instance=student)
-    return render(request, 'student_update.html', {'form': form})
+        students = Student.objects.all()
+        error_message = "You don't have permission to Update the information."
+        return render(request, 'student_list.html', {'students': students, 'error_message': error_message})
 
 
 def student_delete(request, pk):
-    student = get_object_or_404(Student, pk=pk)
-    if request.method == 'POST':
-        student.delete()
-        student_id = request.session.get('logged_in_student_id')
-        students = Student.objects.get(pk=student_id)
-        activity = f"Deleted student"
-        ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
-        return redirect('student-list')
-    return render(request, 'student_confirm_delete.html', {'student': student})
+    student_id = request.session.get('logged_in_student_id')
+    if check_permission(request, student_id, 'DELETE'):
+        student = get_object_or_404(Student, pk=pk)
+        if request.method == 'POST':
+            student.delete()
+            students = Student.objects.get(pk=student_id)
+            activity = f"Deleted student"
+            ActivityLog.objects.create(user=students, timestamp=timezone.now(), activity=activity)
+            students = Student.objects.all()
+            message="Student Deleted Successfully"
+            return render(request, 'student_list.html', {'students': students, 'message': message})
+        return render(request, 'student_confirm_delete.html', {'student': student})
+    else:
+        students = Student.objects.all()
+        error_message = "You don't have permission to Delete the information."
+        return render(request, 'student_list.html', {'students': students, 'error_message': error_message})
 
 
 def log_activity(request):
@@ -225,14 +262,22 @@ def student_dashboard(request):
         thirty_days_ago = timezone.now() - timedelta(days=30)
         activity_logs_30_days = ActivityLog.objects.filter(timestamp__gte=thirty_days_ago)
         daily_activity_30_days = activity_logs_30_days.extra({'day': "date(timestamp)"}).values('day').annotate(count=Count('id'))
+        daily_activity_30_days_names = activity_logs_30_days.values('activity').annotate(count=Count('id'))
         
         twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
         activity_logs_24_hours = ActivityLog.objects.filter(timestamp__gte=twenty_four_hours_ago)
         activity_counts_24_hours = activity_logs_24_hours.annotate(quarter_hour=Trunc('timestamp', 'minute')).values('quarter_hour').annotate(count=Count('id'))
+        activity_counts_24_hours_names = activity_logs_24_hours.values('activity').annotate(count=Count('id'))
         
         thirty_days_ago_str = thirty_days_ago.strftime('%Y-%m-%d %H:%M:%S')
         twenty_four_hours_ago_str = twenty_four_hours_ago.strftime('%Y-%m-%d %H:%M:%S')
 
+        activity_names_counts_30_days = list(daily_activity_30_days_names.values_list('activity', 'count'))
+        activity_names_counts_24_hours = list(activity_counts_24_hours_names.values_list('activity', 'count'))
+        
+        thirty_days_names = json.dumps(activity_names_counts_30_days,default=str)
+        twenty_four_hours_names = json.dumps(activity_names_counts_24_hours,default=str)
+        
         daily_activity_30_days_list = list(daily_activity_30_days)
         activity_counts_24_hours_list = list(activity_counts_24_hours)
 
@@ -273,8 +318,11 @@ def student_dashboard(request):
             'most_active_hours': most_active_hours,
             'least_active_hours': least_active_hours,
             'dead_hours': dead_hours,
+            'thirty_days_names': thirty_days_names,
+            'twenty_four_hours_names': twenty_four_hours_names,
         }
     return render(request, 'student_dashboard.html', context)
+
 
 city_province_mapping = {
     'Karachi': 'Sindh',

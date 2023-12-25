@@ -1,12 +1,23 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
-# Create your models here.
 class Interest(models.Model):
     name = models.CharField(max_length=50,unique=True)
     
     def __str__(self) -> str:
         return self.name
-    
+  
+class Permission(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def create_default_permission(cls):
+        view_permission, _ = cls.objects.get_or_create(name='VIEW')
+        return view_permission  
+      
 class Student(models.Model):
     
     GENDER_CHOICES = (
@@ -336,6 +347,7 @@ class Student(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    permissions = models.ManyToManyField(Permission, default=Permission.create_default_permission)
     
     def __str__(self):
         return self.name
@@ -347,7 +359,4 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.user.name} - {self.activity}"
-    
 
-
-    

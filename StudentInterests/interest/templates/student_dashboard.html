@@ -72,7 +72,21 @@
         border-radius: 5px;
         padding: 10px;
     }
-
+    .Table{
+        margin-left: 30px;
+    }
+    .Table2{
+        margin-left: 20px;
+    }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+   
 </style>
 
 {% endblock %}
@@ -135,42 +149,42 @@
         </table>
     </div>
 
-    <div>
+    <div style="max-width: 300px;"> 
         <canvas id="provincialChart" width="200" height="200"></canvas>
         <h2>Provincial Distribution</h2>
     </div>
 
-    <div>
-        <canvas id="submissionChart" width="200" height="200"></canvas>
+    <div style="max-width: 300px;">
+        <canvas id="submissionChart" width="100" height="100"></canvas>
         <h2>Submission Chart</h2>
     </div>
 
-    <div>
+    <div style="max-width: 300px;">
         <canvas id="ageChart" width="200" height="200"></canvas>
         <h2>Age Distribution</h2>
     </div>
 
-    <div>
-        <canvas id="departmentChart" width="200" height="200"></canvas>
+    <div style="max-width: 300px;">
+        <canvas id="departmentChart" style="width: 100%; height: auto;"></canvas>
         <h2>Department Distribution</h2>
     </div>
 
-    <div>
-        <canvas id="degreeChart" width="200" height="200"></canvas>
+    <div style="max-width: 300px;">
+        <canvas id="degreeChart" style="width: 100%; height: auto;"></canvas>
         <h2>Degreee Distribution</h2>
     </div>
 
-    <div>
-        <canvas id="genderChart" width="200" height="200"></canvas>
+    <div style="max-width: 300px;">
+        <canvas id="genderChart" style="width: 100%; height: auto;"></canvas>
         <h2>Genders Distribution</h2>
     </div>
 
-    <div>
+    <div style="max-width: 300px;">
         <canvas id="dailyActivityChart" width="200" height="200"></canvas>
         <h2>Last 30 days Activity</h2>
     </div>
 
-    <div>
+    <div style="max-width: 300px;">
         <canvas id="activityCountsChart" width="200" height="200"></canvas>
         <h2>Last 24 hours Activity</h2>
     </div>
@@ -190,6 +204,33 @@
                 </div>
             </div>
     </div>
+
+    <div class = "Table">
+            <h2>Last 30 Days Activity With Names</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Activity Name</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody id="last_30_days_table">
+                </tbody>
+            </table>
+    </div>
+    <div class = "Table2">
+    <h2>Last 24 Hours Activity With Names</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Activity Name</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody id="last_24_hours_table">
+        </tbody>
+    </table>
+</div>
 </div>
 
 <script>
@@ -432,7 +473,29 @@
     populateCards('mostActiveHours', 'Most Active Hours in Last 30 Days', mostActiveHours);
     populateCards('leastActiveHours', 'Least Active Hours in Last 30 Days', leastActiveHours);
     populateCards('deadHours', 'Dead Hours in Last 30 Days', deadHours);
+    const thirtyDaysData = JSON.parse('{{ thirty_days_names | escapejs }}');
+    const twentyFourHoursData = JSON.parse('{{ twenty_four_hours_names | escapejs }}');
 
+        function populateTable(data, tableId) {
+            const tableBody = document.getElementById(tableId);
+
+            data.forEach(item => {
+                const row = document.createElement("tr");
+                const activityNameCell = document.createElement("td");
+                const countCell = document.createElement("td");
+
+                activityNameCell.textContent = item[0];
+                countCell.textContent = item[1];
+
+                row.appendChild(activityNameCell);
+                row.appendChild(countCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        populateTable(thirtyDaysData, 'last_30_days_table');
+        populateTable(twentyFourHoursData, 'last_24_hours_table');
 
 </script>
 {% endblock %}

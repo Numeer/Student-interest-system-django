@@ -1,12 +1,13 @@
 from django import forms
-from .models import Interest, Student  
+from .models import Interest, Permission, Student  
 
 class StudentForm(forms.ModelForm):
     interest_input = forms.CharField(required=False, label='Interest', widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type new interest'}))
     interest = forms.ModelChoiceField(queryset=Interest.objects.all(), required=False)
+    permissions = forms.ModelMultipleChoiceField(queryset=Permission.objects.all(), required=False, widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Student
-        fields = ['name', 'password', 'roll_number', 'email', 'gender', 'date_of_birth','interest','city', 'department', 'degree_title', 'subject', 'start_date', 'end_date'] 
+        fields = ['name', 'password', 'roll_number', 'email', 'gender', 'date_of_birth','interest','permissions','city', 'department', 'degree_title', 'subject', 'start_date', 'end_date'] 
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),

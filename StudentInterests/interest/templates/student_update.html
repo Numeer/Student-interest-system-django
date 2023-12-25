@@ -133,6 +133,12 @@
                 {{ form.end_date }}
             </div>
         </div>
+        <div class = "col-md-4">
+            <div class="form-group">
+                <label for="id_permission">Permissions</label>
+                {{ form.permissions }}
+            </div>
+        </div>
         <div class="col-md-12">
             <button type="submit" class="btn btn-primary">Update</button>
             <a href="{% url 'student-list' %}" class="btn btn-secondary">Cancel</a>
@@ -145,4 +151,17 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#id_interest_input').hide();    
+        $('#id_interest').change(function() {
+            if ($(this).val() === "") {
+                $('#id_interest_input').show();
+            } else {
+                $('#id_interest_input').hide();
+            }
+        });
+    });
+    </script>
+
 {% endblock %}
