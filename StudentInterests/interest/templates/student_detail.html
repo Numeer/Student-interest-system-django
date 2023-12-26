@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Student Details{% endblock %}
+{% block extra_head %}
+<div class="ml-3 mt-3">
+    <a href="{% url 'student-dashboard' %}">Dashboard</a>
+    <b> | </b>
+    <a href="{% url 'student-list' %}">Student List</a>
+    <b> | </b>
+    <a href="{% url 'logout' %}">Logout</a>
+    <br> <br>
+</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+{% endblock %}
+{% block content_title %}Student Details{% endblock %}
+{% block content %}
+<br><br>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2>Student Information:</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Name:</strong> {{ student.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Email:</strong> {{ student.email }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Gender:</strong> {{ student.get_gender_display }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Interest:</strong> {{ student.interest }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>City:</strong> {{ student.city }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Department:</strong> {{ student.department }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Degree Title:</strong> {{ student.degree_title }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Subject:</strong> {{ student.subject }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Start Date:</strong> {{ student.start_date }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>End Date:</strong> {{ student.end_date }}</p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    {% endblock %}

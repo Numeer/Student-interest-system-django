@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Confirm Delete{% endblock %}</title>
+</head>
+<body>
+    <h1>{% block heading %}Confirm Delete{% endblock %}</h1>
+
+    <p>Are you sure you want to delete student "{{ student.name }}"?</p>
+
+    <form action="{% url 'student-delete' student.pk %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Confirm Delete">
+        <a href="{% url 'student-detail' student.pk %}">Cancel</a>
+    </form>
+</body>
+</html>

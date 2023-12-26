@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+<div class="ml-3 mt-3"> 
+{% block title %}Student Form{% endblock %}
+</div>
+{% block extra_head %}
+
+<div class="ml-3 mt-3"> 
+    <a href="{% url 'student-dashboard' %}">Dashboard</a>
+    <b> | </b>
+    <a href="{% url 'student-list' %}">Student List</a>
+    <b> | </b>
+    <a href="{% url 'logout' %}">Logout</a>
+    <br> <br>
+</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-primary {
+        padding: 10px 20px;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+{% block content_title %}Update Student{% endblock %}
+
+{% block content %}
+<br><br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_name">Name</label>
+                    {{ form.name }}
+                </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_roll_number">Roll Number</label>
+                {{ form.roll_number }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                {{ form.email }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_gender">Gender</label>
+                {{ form.gender }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_date_of_birth">Date of Birth</label>
+                {{ form.date_of_birth }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_interest">Interest</label>
+                {{ form.interest }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_city">City</label>
+                {{ form.city }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_department">Department</label>
+                {{ form.department }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_degree_title">Degree Title</label>
+                {{ form.degree_title }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_subject">Subject</label>
+                {{ form.subject }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_start_date">Start Date</label>
+                {{ form.start_date }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="id_end_date">End Date</label>
+                {{ form.end_date }}
+            </div>
+        </div>
+        <div class = "col-md-4">
+            <div class="form-group">
+                <label for="id_permission">Permissions</label>
+                {{ form.permissions }}
+            </div>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{% url 'student-list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#id_interest_input').hide();    
+        $('#id_interest').change(function() {
+            if ($(this).val() === "") {
+                $('#id_interest_input').show();
+            } else {
+                $('#id_interest_input').hide();
+            }
+        });
+    });
+    </script>
+
+{% endblock %}
