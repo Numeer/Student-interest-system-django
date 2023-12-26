@@ -30,11 +30,9 @@ class StudentForm(forms.ModelForm):
         interest = cleaned_data.get('interest')
         new_interest = cleaned_data.get('interest_input')
 
-        print(interest), print(new_interest)
         if new_interest:
             interest, created = Interest.objects.get_or_create(name=new_interest)
             cleaned_data['interest'] = interest
-            print(interest)
 
         if cleaned_data.get('interest') is None:
             raise forms.ValidationError("Interest field is required.")

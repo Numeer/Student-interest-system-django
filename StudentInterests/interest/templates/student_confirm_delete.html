@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Confirm Delete{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <h1>{% block heading %}Confirm Delete{% endblock %}</h1>
@@ -11,8 +12,8 @@
 
     <form action="{% url 'student-delete' student.pk %}" method="post">
         {% csrf_token %}
-        <input type="submit" value="Confirm Delete">
-        <a href="{% url 'student-detail' student.pk %}">Cancel</a>
+        <input type="submit" value="Confirm Delete" class="btn btn-primary">
+        <a href="{% url 'student-list'  %}" class="btn btn-secondary">Cancel</a>
     </form>
 </body>
 </html>
